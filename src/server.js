@@ -72,13 +72,12 @@ app.get('/refresh_token', async(req, res) => {
 });
 
 app.get('/fetchmp3/:fileId', (req, res) => {
-  const fileId = req.params.fileId; // Replace with the actual file ID or filename
+  const fileId = req.params.fileId; 
   const readStream = gfs.createReadStream({ _id: fileId });
 
-  // Set response header
   res.setHeader('Content-Type', 'audio/mpeg');
 
-  readStream.pipe(res); // Pipe the audio data to the response object to serve it.
+  readStream.pipe(res); 
 });
 
 // test GET route
