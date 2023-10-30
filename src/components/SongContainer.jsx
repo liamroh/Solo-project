@@ -9,7 +9,7 @@ import playerStateSlice, {
   setToggleTwo,
   setRotateOne,
   setRotateTwo,
-} from '../redux/reducers/slice/playerStateSlice.js'; // Replace with the actual path to your reducer file
+} from '../redux/reducers/slice/playerStateSlice.js'; 
 import MediaPlayer from './MediaPlayer.jsx';
 
 function SongContainer() {
@@ -27,6 +27,9 @@ function SongContainer() {
   const [audioSourceOne, setAudioSourceOne] = useState(null);
   const [audioSourceTwo, setAudioSourceTwo] = useState(null);
   const [playbackState, setPlaybackState] = useState('stopped');
+  const [rotateIntervalOne, setRotateIntervalOne] = useState(0);
+  const [rotateIntervalTwo, setRotateIntervalTwo] = useState(0);
+
 
   const timer = useRef();
 
@@ -79,8 +82,10 @@ function SongContainer() {
       if (playbackState === 'playing' && audioSourceOne) {
         audioSourceOne.stop();
         setPlaybackState('stopped');
+        clearInterval(rotateIntervalOne);
       } else {
         playAudio(audioSourceOne, songIndexOne);
+        startRotation(true);
       }
     }
   };
@@ -91,8 +96,10 @@ function SongContainer() {
       if (playbackState === 'playing' && audioSourceTwo) {
         audioSourceTwo.stop();
         setPlaybackState('stopped');
+        clearInterval(rotateIntervalTwo);
       } else {
         playAudio(audioSourceTwo, songIndexTwo);
+        startRotation(false);
       }
     }
   };
@@ -120,39 +127,40 @@ function SongContainer() {
     secondGainNode.gain.value = newVolume;
   };
 
-    useEffect(() => {
-      const intervalOne = setInterval(() => {
-        if (toggleOne && audioSourceOne && audioContext.state === 'running') {
-          setRotateOne((prevAngle) => prevAngle + 6);
-        }
-      }, 100);
-      const intervalTwo = setInterval(() => {
-        if (toggleTwo && audioSourceTwo && audioContext.state === 'running') {
-          setRotateTwo((prevAngle) => prevAngle + 6);
-        }
-      }, 100);
-
-      if (audioSourceOne) {
-        audioContext.addEventListener("timeupdate", handleTransition);
-      }
-      return () => {
-        clearTimeout(timer.current);
-        clearInterval(intervalOne);
-        clearInterval(intervalTwo);
-      };
-    }, [toggleOne, toggleTwo]);
-
-  // const startRotation = (isFirst) => {
-  //   setInterval(() => {
-  //     if ((isFirst ? toggleOne : toggleTwo) && (isFirst ? audioSourceOne.current : audioSourceTwo.current) && (isFirst ? audioSourceOne.current.playbackState === audioSourceOne.current.PLAYING_STATE : audioSourceTwo.current.playbackState === audioSourceTwo.current.PLAYING_STATE)) {
-  //       if (isFirst) {
-  //         setRotateOne((prevAngle) => prevAngle + 6);
-  //       } else {
-  //         setRotateTwo((prevAngle) => prevAngle + 6);
-  //       }
+  // useEffect(() => {
+  //   const intervalOne = setInterval(() => {
+  //     if (toggleOne && audioSourceOne && audioContext.state === 'running') {
+  //       setRotateOne((prevAngle) => prevAngle + 6);
   //     }
   //   }, 100);
-  // };
+  //   const intervalTwo = setInterval(() => {
+  //     if (toggleTwo && audioSourceTwo && audioContext.state === 'running') {
+  //       setRotateTwo((prevAngle) => prevAngle + 6);
+  //     }
+  //   }, 100);
+
+  //   if (audioSourceOne) {
+  //     audioContext.addEventListener("timeupdate", handleTransition);
+  //   }
+  //   return () => {
+  //     clearTimeout(timer.current);
+  //     clearInterval(intervalOne);
+  //     clearInterval(intervalTwo);
+  //   };
+  // }, [toggleOne, toggleTwo]);
+
+  const startRotation = (isFirst) => {
+    if (isFirst) {
+      setRotateIntervalOne(setInterval(() => {
+        dispatch(setRotateOne(6));
+      }, 100));
+    }
+    else {
+      setRotateIntervalTwo(setRotateIntervalTwo(setInterval(() => {
+        dispatch(setRotateOne(6));
+      }, 100)));
+    }
+  };
 
   const handleTransition = (event) => {
     // const currentTime = event.target.currentTime;

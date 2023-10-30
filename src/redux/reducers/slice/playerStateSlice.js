@@ -44,10 +44,10 @@ const playerStateSlice = createSlice({
       state.volumeTwo = action.payload;
     },
     setRotateOne: (state, action) => {
-      state.rotateOne = action.payload;
+      state.rotateOne = state.rotateOne + action.payload;
     },
     setRotateTwo: (state, action) => {
-      state.rotateTwo = action.payload;
+      state.rotateTwo = state.rotateTwo + action.payload;
     },
   },
 });
