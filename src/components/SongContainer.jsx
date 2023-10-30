@@ -10,7 +10,7 @@ import playerStateSlice, {
   setRotateOne,
   setRotateTwo,
 } from '../redux/reducers/slice/playerStateSlice.js'; 
-import MediaPlayer from './MediaPlayer.jsx';
+import MediaPlayer from './MediaPlayer.jsx'; // deprecated, remove
 
 function SongContainer() {
   const dispatch = useDispatch();
@@ -29,9 +29,6 @@ function SongContainer() {
   const [playbackState, setPlaybackState] = useState('stopped');
   const [rotateIntervalOne, setRotateIntervalOne] = useState(0);
   const [rotateIntervalTwo, setRotateIntervalTwo] = useState(0);
-
-
-  const timer = useRef();
 
   const firstGainNode = audioContext ? audioContext.createGain() : null;
   const secondGainNode = audioContext ? audioContext.createGain() : null;
@@ -126,28 +123,6 @@ function SongContainer() {
     dispatch(setVolumeTwo(newVolume));
     secondGainNode.gain.value = newVolume;
   };
-
-  // useEffect(() => {
-  //   const intervalOne = setInterval(() => {
-  //     if (toggleOne && audioSourceOne && audioContext.state === 'running') {
-  //       setRotateOne((prevAngle) => prevAngle + 6);
-  //     }
-  //   }, 100);
-  //   const intervalTwo = setInterval(() => {
-  //     if (toggleTwo && audioSourceTwo && audioContext.state === 'running') {
-  //       setRotateTwo((prevAngle) => prevAngle + 6);
-  //     }
-  //   }, 100);
-
-  //   if (audioSourceOne) {
-  //     audioContext.addEventListener("timeupdate", handleTransition);
-  //   }
-  //   return () => {
-  //     clearTimeout(timer.current);
-  //     clearInterval(intervalOne);
-  //     clearInterval(intervalTwo);
-  //   };
-  // }, [toggleOne, toggleTwo]);
 
   const startRotation = (isFirst) => {
     if (isFirst) {
