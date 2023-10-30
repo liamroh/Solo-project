@@ -3,7 +3,6 @@ import SongContainer from './SongContainer.jsx';
 import TokenButton from './TokenButton.jsx';
 import FileUpload from './FileUpload.jsx';
 
-
 function App() {
   
     return (
