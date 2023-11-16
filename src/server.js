@@ -11,6 +11,9 @@ const cookieParser = require('cookie-parser');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const cors = require('cors');
 
+// Require controllers
+const audioController = require('./controllers/uploadController.js');
+
 // connect to db
 connectDb.connectDb().catch(console.dir);
 
@@ -78,6 +81,11 @@ app.get('/fetchmp3/:fileId', (req, res) => {
   res.setHeader('Content-Type', 'audio/mpeg');
 
   readStream.pipe(res); 
+  return res.send('success');
+});
+
+app.post('/uploadmp3', audioController.uploadMp3, (req, res) => { 
+  return res.send('success');
 });
 
 // test GET route

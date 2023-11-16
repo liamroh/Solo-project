@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import { AudioData } from '../model/songModel';
-import grid from 'gridfs-stream';
+const mongoose = require('mongoose');
+const { AudioData } = require('../model/songModel');
+const grid = require('gridfs-stream');;
 
 const audioController = {
   uploadMp3: (req, res, next) => {
@@ -74,4 +74,4 @@ const audioController = {
   },
 };
 
-export default audioController;
+module.exports = audioController;
