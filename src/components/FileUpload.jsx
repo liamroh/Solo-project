@@ -10,10 +10,13 @@ function FileUpload() {
   const handleUpload = () => {
     if (file) {
       const formData = new FormData();
+      console.log(file.name);
+      formData.append('filename', file.name); // Include the filename property in the request body
       formData.append('audio', file);
+      console.log(formData);
 
       // Upload to MongoDB server
-      fetch('/upload', {
+      fetch('/uploadmp3', {
         method: 'POST',
         body: formData,
       })
