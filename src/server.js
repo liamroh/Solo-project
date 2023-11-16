@@ -23,8 +23,8 @@ const client_secret = process.env.CLIENT_SECRET;
 let token;
 let refreshToken;
 
+app.use(express.json());
 app.use(cors({ origin: 'http://localhost:8080' }));
-
 app.use(express.static('public'));
 
 // Login to authorize Spotify token
