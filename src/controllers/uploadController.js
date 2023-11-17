@@ -1,17 +1,14 @@
 const mongoose = require('mongoose');
-const AudioData = require('../model/songModel.js');
-const { gfs } = require('../model/songdb.js');
+const { gfs, AudioData } = require('../model/songdb.js');
 
 const audioController = {
   uploadMp3: async (req, res, next) => {
     try {
-      const gfs = req.gfs;
-      console.log(gfs);
       const { filename } = req.body;
       // If the mp3 has not been uploaded before, save to gridfs
       const existingAudio = await AudioData.findOne({ filename: filename });
       if (!existingAudio) {
-        const writeStream = gfs.createWriteStream({
+        const writeStream = gfs.grid.createWriteStream({
           filename: filename,
         });
   
@@ -57,7 +54,7 @@ const audioController = {
     const { trackId } = req.params;
 
     // Find the file in GridFS based on the unique identifier
-    const readstream = gfs.createReadStream({ _id: trackId });
+    const readstream = gfs.grid.createReadStream({ _id: trackId });
 
     // Set the appropriate headers for the media stream
     res.set('Content-Type', 'audio/mpeg');
