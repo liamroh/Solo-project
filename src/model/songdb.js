@@ -17,21 +17,32 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 async function connectDb() {
-  try {
-    await client.connect();
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  // try {
+  //   await client.connect();
+  //   await client.db("admin").command({ ping: 1 });
+  //   console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
-    // Initialize GridFS using the client's db connection
-    gfs = grid(client.db, mongoose.mongo);
-  } finally {
-    await client.close();
-  }
+  //   // Initialize GridFS using the client's db connection
+  //   gfs = grid(client.db, mongoose.mongo);
+  // } finally {
+  //   await client.close();
+  // }
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log("Connected to database");
+    gfs = grid(mongoose.connection.db, mongoose.mongo);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  } 
 }
 
 module.exports = {
   connectDb,
-  gfs, 
+  getGfs: () => gfs, 
   storage,
   upload
 };

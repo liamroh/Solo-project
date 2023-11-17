@@ -5,6 +5,8 @@ const { gfs } = require('../model/songdb.js');
 const audioController = {
   uploadMp3: async (req, res, next) => {
     try {
+      const gfs = req.gfs;
+      console.log(gfs);
       const { filename } = req.body;
       // If the mp3 has not been uploaded before, save to gridfs
       const existingAudio = await AudioData.findOne({ filename: filename });
