@@ -1,6 +1,6 @@
 const express = require('express'); 
 const mongoose = require('mongoose');
-const { connectDb, getGfs, storage, upload } = require('./model/songdb.js');
+const { connectDb, gfs, storage, upload } = require('./model/songdb.js');
 const { getToken, fetchWebApi, getRecommendations, findArtist, findTrack, main } = require('./helpers/SpotifyAPIHelpers.js');
 require('dotenv').config();
 
@@ -13,12 +13,6 @@ const cors = require('cors');
 
 // Require controllers
 const audioController = require('./controllers/uploadController.js');
-
-// connect to db
-connectDb().catch(console.dir);
-const gfs = getGfs();
-console.log(gfs);
-// console.log(storage, upload);
 
 /* Spotify Credentials */
 const client_id = process.env.CLIENT_ID;
