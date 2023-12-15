@@ -86,7 +86,15 @@ const findTransition = (songOne, songTwo) => {
   const averageBpm = (songOne.track.tempo + songTwo.track.tempo) / 2;
 
   // Recalculate the timestamp in each section based on the new bpm
-  const updatedSections = songOne.sections.map((section) => {
+  const updatedSectionsOne = songOne.sections.map((section) => {
+    const updatedTimestamp = section.start * (60 / averageBpm);
+    return {
+      ...section,
+      start: updatedTimestamp,
+    };
+  });
+
+  const updatedSectionsTwo = songTwo.sections.map((section) => {
     const updatedTimestamp = section.start * (60 / averageBpm);
     return {
       ...section,
@@ -95,18 +103,18 @@ const findTransition = (songOne, songTwo) => {
   });
 
   // Find the index of the loudest section of song 1 (drop of the song)
-  const dropOneIdx = songOne.sections.reduce(
+  const dropOneIdx = updatedSectionsOne.sections.reduce(
     (maxIndex, section, currentIndex) =>
-      section.loudness > songOne.sections[maxIndex].loudness
+      section.loudness > updatedSectionsOne.sections[maxIndex].loudness
         ? currentIndex
         : maxIndex,
     0
   );
 
   // Find the index of the loudest section of song 2 (drop of the song)
-  const dropTwoIdx = songTwo.sections.reduce(
+  const dropTwoIdx = updatedSectionsTwo.sections.reduce(
     (maxIndex, section, currentIndex) =>
-      section.loudness > songTwo.sections[maxIndex].loudness
+      section.loudness > updatedSectionsTwo.sections[maxIndex].loudness
         ? currentIndex
         : maxIndex,
     0
