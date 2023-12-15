@@ -64,7 +64,7 @@ const findTrack = async (track, token) => {
   return foundTrack.tracks.items[0].id;
 };
 
-const trackAnalysis = async (trackName, token) => {
+const getTrackAnalysis = async (trackName, token) => {
   const trackId = await findTrack(trackName, token);
   const trackData = await fetchWebApi(`v1/audio-analysis/${trackId}`, 'GET');
   return trackData;
@@ -134,7 +134,7 @@ module.exports = {
   findArtist,
   findTrack,
   main, 
-  trackAnalysis, 
+  getTrackAnalysis, 
   findTransition
 };
 

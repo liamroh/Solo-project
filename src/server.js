@@ -89,24 +89,26 @@ app.post('/uploadmp3', audioController.uploadMp3, (req, res) => {
 });
 
 // Return DJ transition timestamp
-app.get('/transition/:trackId', async (req, res) => { 
-  const { trackId } = req.params;
-  const cachedData = await redisClient.get(trackId);
+app.get('/transition/:trackIdOne/:trackIdTwo', async (req, res) => { 
+  const { trackIdOne, trackIdTwo } = req.params;
+  let songDataOne = await redisClient.get(trackIdOne);
+  let songDataTwo = await redisClient.get(trackIdTwo);
 
-  if (cachedData) {
-    // Song data exists in cache, return it
-    return res.json(JSON.parse(cachedData));
+  // Data not found in cache, fetch from Spotify
+  if (!songDataOne) {
+    songDataOne = getTrackAnalysis(trackIdOne, token);
+    await redisClient.set(trackIdOne, JSON.stringify(songDataOne));
   }
 
-    // Data not found in cache, fetch from Spotify
-    const data = await findTrack(trackId, token);
+  if (!songDataTwo) {
+    songDataTwo = getTrackAnalysis(trackIdTwo, token);
+    await redisClient.set(trackIdTwo, JSON.stringify(songDataTwo));
+  }
 
-    // Store data in cache for future use
-    await redisClient.set(trackId, JSON.stringify(data));
-  
-    // Return the fetched data
-    res.json(data);
+  const transitionTimes = await findTransition(songDataOne, songDataTwo);
 
+  // Return the fetched data
+  return res.json(transitionTimes);
 }); 
 
 // test GET route
