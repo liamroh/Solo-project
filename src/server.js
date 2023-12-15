@@ -1,8 +1,11 @@
 const express = require('express'); 
 const mongoose = require('mongoose');
 const { connectDb, gfs, storage, upload } = require('./model/songdb.js');
-const { getToken, fetchWebApi, getRecommendations, findArtist, findTrack, main } = require('./helpers/SpotifyAPIHelpers.js');
+const { getToken, fetchWebApi, getRecommendations, findArtist, findTrack, main, findTransition } = require('./helpers/SpotifyHelpers.js');
 require('dotenv').config();
+
+// Initialize Redis
+const redisClient = require('./redisCache.js');
 
 // Initilize Express 
 const app = express();
@@ -84,6 +87,27 @@ app.get('/fetchmp3/:fileId', (req, res) => {
 app.post('/uploadmp3', audioController.uploadMp3, (req, res) => { 
   return res.send('success');
 });
+
+// Return DJ transition timestamp
+app.get('/transition/:trackId', async (req, res) => { 
+  const { trackId } = req.params;
+  const cachedData = await redisClient.get(trackId);
+
+  if (cachedData) {
+    // Song data exists in cache, return it
+    return res.json(JSON.parse(cachedData));
+  }
+
+    // Data not found in cache, fetch from Spotify
+    const data = await findTrack(trackId, token);
+
+    // Store data in cache for future use
+    await redisClient.set(trackId, JSON.stringify(data));
+  
+    // Return the fetched data
+    res.json(data);
+
+}); 
 
 // test GET route
 app.get('/', (req, res) => { 

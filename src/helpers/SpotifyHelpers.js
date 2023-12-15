@@ -73,6 +73,11 @@ async function main(likedTracks, likedArtists, client_id, client_secret) {
   );
 };
 
+const findTransition = (songOne, songTwo) => {
+  const timeStamp = 10;
+  return timeStamp
+}
+
 module.exports = {
   getToken,
   fetchWebApi,
