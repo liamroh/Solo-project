@@ -132,7 +132,7 @@ function SongContainer() {
     }
     else {
       setRotateIntervalTwo(setRotateIntervalTwo(setInterval(() => {
-        dispatch(setRotateOne(6));
+        dispatch(setRotateTwo(6));
       }, 100)));
     }
   };

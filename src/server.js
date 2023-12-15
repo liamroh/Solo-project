@@ -1,8 +1,11 @@
 const express = require('express'); 
 const mongoose = require('mongoose');
-const connectDb = require('./model/songdb.js');
-const { getToken, fetchWebApi, getRecommendations, findArtist, findTrack, main } = require('./helpers/SpotifyAPIHelpers.js');
+const { connectDb, gfs, storage, upload } = require('./model/songdb.js');
+const { getToken, fetchWebApi, getRecommendations, findArtist, findTrack, main, findTransition } = require('./helpers/SpotifyHelpers.js');
 require('dotenv').config();
+
+// Initialize Redis
+const redisClient = require('./redisCache.js');
 
 // Initilize Express 
 const app = express();
@@ -11,8 +14,8 @@ const cookieParser = require('cookie-parser');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const cors = require('cors');
 
-// connect to db
-connectDb.connectDb().catch(console.dir);
+// Require controllers
+const audioController = require('./controllers/uploadController.js');
 
 /* Spotify Credentials */
 const client_id = process.env.CLIENT_ID;
@@ -20,8 +23,8 @@ const client_secret = process.env.CLIENT_SECRET;
 let token;
 let refreshToken;
 
+app.use(express.json());
 app.use(cors({ origin: 'http://localhost:8080' }));
-
 app.use(express.static('public'));
 
 // Login to authorize Spotify token
@@ -78,7 +81,35 @@ app.get('/fetchmp3/:fileId', (req, res) => {
   res.setHeader('Content-Type', 'audio/mpeg');
 
   readStream.pipe(res); 
+  return res.send('success');
 });
+
+app.post('/uploadmp3', audioController.uploadMp3, (req, res) => { 
+  return res.send('success');
+});
+
+// Return DJ transition timestamp
+app.get('/transition/:trackIdOne/:trackIdTwo', async (req, res) => { 
+  const { trackIdOne, trackIdTwo } = req.params;
+  let songDataOne = await redisClient.get(trackIdOne);
+  let songDataTwo = await redisClient.get(trackIdTwo);
+
+  // Data not found in cache, fetch from Spotify
+  if (!songDataOne) {
+    songDataOne = getTrackAnalysis(trackIdOne, token);
+    await redisClient.set(trackIdOne, JSON.stringify(songDataOne));
+  }
+
+  if (!songDataTwo) {
+    songDataTwo = getTrackAnalysis(trackIdTwo, token);
+    await redisClient.set(trackIdTwo, JSON.stringify(songDataTwo));
+  }
+
+  const transitionTimes = await findTransition(songDataOne, songDataTwo);
+
+  // Return the fetched data
+  return res.json(transitionTimes);
+}); 
 
 // test GET route
 app.get('/', (req, res) => { 
