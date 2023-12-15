@@ -64,6 +64,60 @@ const findTrack = async (track, token) => {
   return foundTrack.tracks.items[0].id;
 };
 
+const trackAnalysis = async (trackName, token) => {
+  const trackId = await findTrack(trackName, token);
+  const trackData = await fetchWebApi(`v1/audio-analysis/${trackId}`, 'GET');
+  return trackData;
+};
+const findTransition = (songOne, songTwo) => {
+    // Check if we can transition in key (+- 1 key)
+    const keyDiff = Math.abs(songOne.track.key - songTwo.track.key);
+    if (keyDiff !== 1) {
+      return "No good transition";
+    }
+  
+    // Check if the tempos are within 12% of each other to prevent audio artifacts
+    const tempoDiffPercentage = Math.abs((songOne.track.tempo - songTwo.track.tempo) / songOne.track.tempo) * 100;
+    if (tempoDiffPercentage > 12) {
+      return "No good transition";
+    }
+
+  // Calculate the average bpm
+  const averageBpm = (songOne.track.tempo + songTwo.track.tempo) / 2;
+
+  // Recalculate the timestamp in each section based on the new bpm
+  const updatedSections = songOne.sections.map((section) => {
+    const updatedTimestamp = section.start * (60 / averageBpm);
+    return {
+      ...section,
+      start: updatedTimestamp,
+    };
+  });
+
+  // Find the index of the loudest section of song 1 (drop of the song)
+  const dropOneIdx = songOne.sections.reduce(
+    (maxIndex, section, currentIndex) =>
+      section.loudness > songOne.sections[maxIndex].loudness
+        ? currentIndex
+        : maxIndex,
+    0
+  );
+
+  // Find the index of the loudest section of song 2 (drop of the song)
+  const dropTwoIdx = songTwo.sections.reduce(
+    (maxIndex, section, currentIndex) =>
+      section.loudness > songTwo.sections[maxIndex].loudness
+        ? currentIndex
+        : maxIndex,
+    0
+  );
+
+  // We want the timestamp of the section afterwards of song 1, and the index of the section before song 2
+  const transitionOne = Math.max(dropOneIdx + 1, 0).start;
+  const transitionTwo = Math.max(dropTwoIdx - 1, 0).start;
+
+  return [transitionOne, transitionTwo];
+}
 async function main(likedTracks, likedArtists, client_id, client_secret) {
   const trackSearch = await findTrack(likedTracks.value);
   const artistSearch = await findArtist(likedArtists.value);
@@ -73,18 +127,15 @@ async function main(likedTracks, likedArtists, client_id, client_secret) {
   );
 };
 
-const findTransition = (songOne, songTwo) => {
-  const timeStamp = 10;
-  return timeStamp
-}
-
 module.exports = {
   getToken,
   fetchWebApi,
   getRecommendations,
   findArtist,
   findTrack,
-  main
+  main, 
+  trackAnalysis, 
+  findTransition
 };
 
 // call helper functions to find track + artist names based on IDs
