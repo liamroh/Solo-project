@@ -83,7 +83,7 @@ app.get('/refresh_token', async(req, res) => {
   // res.redirect(302, 'http://localhost:8080');
 });
 
-app.get('/fetchmp3/:fileId', (req, res) => {
+app.get('/mp3/:fileId', (req, res) => {
   const fileId = req.params.fileId; 
   const readStream = gfs.createReadStream({ _id: fileId });
 
@@ -93,7 +93,7 @@ app.get('/fetchmp3/:fileId', (req, res) => {
   return res.send('success');
 });
 
-app.post('/uploadmp3', audioController.uploadMp3, (req, res) => { 
+app.post('/mp3', audioController.uploadMp3, (req, res) => { 
   return res.send('success');
 });
 
