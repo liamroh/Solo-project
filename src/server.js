@@ -1,11 +1,12 @@
 const express = require('express'); 
 const mongoose = require('mongoose');
+const path = require('path');
 const { connectDb, gfs, storage, upload } = require('./model/songdb.js');
 const { getToken, fetchWebApi, getRecommendations, findArtist, findTrack, main, findTransition } = require('./helpers/SpotifyHelpers.js');
 require('dotenv').config();
 
 // Initialize Redis
-const redisClient = require('./redisCache.js');
+// const redisClient = require('./redis.js'); 
 
 // Initilize Express 
 const app = express();
@@ -24,7 +25,12 @@ let token;
 let refreshToken;
 
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:8080' }));
+app.use(cors({
+  origin: 'http://localhost:8080', 
+  methods: ['GET', 'POST'], 
+  allowedHeaders: ['Content-Type', 'Authorization'], 
+}));
+
 app.use(express.static('public'));
 
 // Login to authorize Spotify token
@@ -36,7 +42,7 @@ app.get('/login', async (req, res) => {
   params.append('scope', 'user-read-currently-playing');
 
   const url = `https://accounts.spotify.com/authorize?${params.toString()}`;
-  return res.redirect(url);
+  res.redirect(url);
 });
 
 // Callback for the login endpoint redirect
@@ -48,7 +54,8 @@ app.get('/callback', async (req, res) => {
     refreshToken = data.refresh_token;
     if (refreshToken) {
       console.log('Token obtained and permission granted');
-      res.redirect(302, 'http://localhost:3000');
+      console.log(token);
+      return res.status(200).send(token);
     }
   } else {
     res.status(400).send('Authorization code not found');
@@ -71,7 +78,9 @@ app.get('/refresh_token', async(req, res) => {
   });
   const parsed = await response.json();
   token = parsed.access_token;
-  res.send('Token refreshed')
+  console.log('Token refreshed', token);
+  res.status(200);
+  // res.redirect(302, 'http://localhost:8080');
 });
 
 app.get('/fetchmp3/:fileId', (req, res) => {
@@ -111,9 +120,10 @@ app.get('/transition/:trackIdOne/:trackIdTwo', async (req, res) => {
   return res.json(transitionTimes);
 }); 
 
-// test GET route
+// default GET route
 app.get('/', (req, res) => { 
-  res.send('Get route'); 
+  console.log('default GET route');
+  // res.sendFile(path.join(__dirname, 'index.js'));
 }); 
 
 app.use((err, req, res, next) => {

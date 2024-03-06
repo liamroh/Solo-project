@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import SongContainer from './SongContainer.jsx';
 import TokenButton from './TokenButton.jsx';
 import FileUpload from './FileUpload.jsx';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   
@@ -12,6 +14,7 @@ function App() {
         <TokenButton />
         <FileUpload />
         <SongContainer />
+        <ToastContainer/>
       </div>
     );
   }
