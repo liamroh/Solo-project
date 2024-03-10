@@ -79,7 +79,7 @@ app.get('/refresh_token', async(req, res) => {
   const parsed = await response.json();
   token = parsed.access_token;
   console.log('Token refreshed', token);
-  res.status(200);
+  res.status(200).send(token);
   // res.redirect(302, 'http://localhost:8080');
 });
 

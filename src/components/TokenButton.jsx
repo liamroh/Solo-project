@@ -24,7 +24,7 @@ function TokenButton() {
           'Content-Type': 'application/json',
         },
       }); 
-      if (response) {
+      if (response) { // Checks if response is not null, we are okay with opaque response
         toast.success('Login successful!', {
           position: "top-center",
           autoClose: 3000,
