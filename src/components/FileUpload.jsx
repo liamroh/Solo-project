@@ -16,7 +16,7 @@ function FileUpload() {
       console.log(formData);
 
       // Upload to MongoDB server
-      fetch('/uploadmp3', {
+      fetch('/mp3', {
         method: 'POST',
         body: formData,
       })

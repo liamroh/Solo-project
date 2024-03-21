@@ -1,3 +1,5 @@
 node_modules
 .env
 public/music
+dist
+.DS_Store
